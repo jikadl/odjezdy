@@ -370,3 +370,35 @@ dialog::backdrop { background: rgba(0,0,0,.45); }
 .warn-text { color: var(--red); font-size: 12px; margin: 0 0 6px; }
 .dlg-actions { flex-wrap: wrap; }
 .act.setup { background: #fff; color: var(--red); border: 1px dashed var(--red); }
+
+/* Podmenu Uber / Trasa autem */
+.act-wrap { position: relative; display: inline-flex; }
+button.act { border: 0; cursor: pointer; text-align: left; }
+.act.maps { border: 1px solid #cfcfcf; }
+.act-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 20;
+  min-width: 230px;
+  background: #fff;
+  border: 1px solid #d5d5d5;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  padding: 4px 0;
+}
+.act-menu a {
+  display: block;
+  padding: 11px 14px;
+  color: var(--ink);
+  text-decoration: none;
+  font: 500 15px var(--font);
+  white-space: nowrap;
+}
+.act-menu a + a { border-top: 1px solid #eee; }
+.act-menu a:hover, .act-menu a:focus { background: #f3f3f3; }
+@media (max-width: 560px) {
+  .act-wrap { flex: 1; }
+  .act-wrap .act { width: 100%; }
+  .act-wrap:last-child .act-menu { left: auto; right: 0; }
+}

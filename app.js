@@ -172,20 +172,60 @@
     });
     return `https://www.google.com/maps/dir/?${p}`;
   }
+  // Tlačítka Uber / Trasa autem. Jsou-li v nastavení místa pro taxi (taxi-N), nabídnou
+  // podmenu: do práce = z vybraného místa do práce, domů = z práce na vybrané místo.
+  function rideOptions(r) {
+    const from = place(r.from);
+    const to = place(r.to);
+    const taxi = P.taxi || [];
+    if (taxi.length) {
+      if (r.from === "doma" && to) return taxi.map((t) => [t, to]);
+      if (r.to === "doma" && from) return taxi.map((t) => [from, t]);
+    }
+    return from && to ? [[from, to]] : [];
+  }
   function renderActions() {
     const r = board().ride;
     if (!r) { els.actions.innerHTML = ""; return; }
-    const from = place(r.from);
-    const to = place(r.to);
-    if (!from || !to) {
-      els.actions.innerHTML = `<button type="button" class="act setup" data-open-settings>Nastav doma a práci pro Uber a mapu</button>`;
+    const opts = rideOptions(r);
+    if (!opts.length) {
+      els.actions.innerHTML = `<button type="button" class="act setup" data-open-settings>Nastav doma / práci / taxi pro Uber a mapu</button>`;
       els.actions.querySelector("[data-open-settings]").addEventListener("click", openSettings);
       return;
     }
-    els.actions.innerHTML = `
-      <a class="act uber" href="${esc(uberUrl(from, to))}" target="_blank" rel="noopener">${ICON_UBER}<span>Uber<small>${esc(from.name)} → ${esc(to.name)}</small></span></a>
-      <a class="act maps" href="${esc(mapsUrl(from, to))}" target="_blank" rel="noopener">${ICON_MAP}<span>Trasa autem<small>Google Maps</small></span></a>`;
+    const label = `${PLACE_NAMES[r.from]} → ${PLACE_NAMES[r.to]}`;
+    const button = (kind, icon, title, sub, urlFn) => {
+      if (opts.length === 1) {
+        const [f, t] = opts[0];
+        return `<a class="act ${kind}" href="${esc(urlFn(f, t))}" target="_blank" rel="noopener">${icon}<span>${title}<small>${esc(sub)}</small></span></a>`;
+      }
+      const items = opts
+        .map(([f, t]) => `<a href="${esc(urlFn(f, t))}" target="_blank" rel="noopener">${esc(f.name)} → ${esc(t.name)}</a>`)
+        .join("");
+      return `<div class="act-wrap">
+          <button type="button" class="act ${kind}" data-menu>${icon}<span>${title}<small>${esc(sub)} ▾</small></span></button>
+          <div class="act-menu" hidden>${items}</div>
+        </div>`;
+    };
+    els.actions.innerHTML =
+      button("uber", ICON_UBER, "Uber", label, uberUrl) +
+      button("maps", ICON_MAP, "Trasa autem", label, mapsUrl);
+    els.actions.querySelectorAll("[data-menu]").forEach((btn) =>
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const menu = btn.nextElementSibling;
+        const open = menu.hidden;
+        closeMenus();
+        menu.hidden = !open;
+      })
+    );
+    els.actions.querySelectorAll(".act-menu a").forEach((link) => link.addEventListener("click", closeMenus));
   }
+  function closeMenus() {
+    els.actions.querySelectorAll(".act-menu").forEach((m) => { m.hidden = true; });
+  }
+  document.addEventListener("click", (e) => { if (!els.actions.contains(e.target)) closeMenus(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeMenus(); });
 
   // ---------- Poloha ----------
   function startGeolocation() {

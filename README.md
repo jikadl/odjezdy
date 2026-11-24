@@ -14,8 +14,9 @@ a sledované linky se zadávají v nastavení stránky a ukládají se jen v pro
 - **Rohanské nábř.** (`#rohanske`) – metro B z Invalidovny s přestupem na Můstku na metro A
   do Petřin a tram 1 z Holešovické tržnice do Petřin.
 
-Vedle přepínače jsou tlačítka **Uber** a **Trasa autem (Google Maps)** mezi body
-`doma` a `prace` z nastavení.
+Vedle přepínače jsou tlačítka **Uber** a **Trasa autem (Google Maps)**. Pokud jsou v nastavení
+místa pro taxi (`taxi-N`), tlačítka nabídnou podmenu: do práce z vybraného místa, domů na vybrané
+místo. Bez nich se jede mezi `doma` a `prace`.
 
 Po otevření se stránka zeptá na polohu a do 3 km od stanice Petřiny / Invalidovna vybere
 příslušnou tabuli. Ruční kliknutí má přednost.
@@ -49,6 +50,10 @@ vstup-metro = 45s         # přirážka do metra i z metra
 vstup-prace = 60s         # přirážka na vstup do práce
 kolo-navic = 30s          # přirážka za každý úsek na kole
 hlidane-linky = A,B,1,2,25
+taxi-1 = Název místa      # místa pro Uber / trasu autem (taxi-1 … taxi-9)
+taxi-1-gps = 50.12345, 14.12345
+taxi-2 = Jiné místo
+taxi-2-gps = 50.12345, 14.12345
 ```
 
 Úsek pěšky / na kole = vzdušná vzdálenost × `koef` × tempo (+ `kolo-navic`).

@@ -65,8 +65,14 @@ prace-trznice = kolo
 vstup-metro = 45s     # do metra i z metra
 vstup-prace = 60s
 kolo-navic = 30s      # za každý úsek na kole
-hlidane-linky = A,B,1,2,25</pre>
+hlidane-linky = A,B,1,2,25
+taxi-1 = Název místa  # místa pro Uber / trasu autem
+taxi-1-gps = 50.12345, 14.12345
+taxi-2 = Jiné místo
+taxi-2-gps = 50.12345, 14.12345</pre>
         Chybějící položky dostanou výchozí hodnotu (kromě souřadnic).
+        Místa pro taxi (taxi-1 … taxi-9) se nabídnou v podmenu Uberu a trasy autem:
+        do práce z vybraného místa, domů na vybrané místo. Bez nich se jede z/do <code>doma</code>.
       </div>
       <textarea id="prefs-input" rows="9" spellcheck="false" autocomplete="off"
         placeholder="prace = 50.1234567N, 14.1234567E&#10;doma = 50.12345, 14.12345&#10;chuze = 12&#10;kolo = 4&#10;…"></textarea>

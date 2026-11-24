@@ -122,6 +122,7 @@
     const values = { ...DEFAULTS };
     const report = [];
     const seen = new Set();
+    const taxi = {};
     const entries = String(text || "").split(/[\n;]+/);
     entries.forEach((raw, i) => {
       const line = raw.trim();
@@ -136,6 +137,19 @@
       }
       v = v.replace(/\s(#|\/\/).*$/, "");          // komentář za hodnotou
       const key = normKey(k);
+      // Místa pro taxi: taxi-N = název, taxi-N-gps = souřadnice
+      const tm = key.match(/^taxi-?(\d+)(-gps)?$/);
+      if (tm) {
+        const n = Number(tm[1]);
+        taxi[n] = taxi[n] || { n };
+        if (tm[2]) {
+          try { Object.assign(taxi[n], parseCoord(v.trim())); }
+          catch (e) { report.push({ ok: false, text: `taxi ${n} GPS: ${e.message}` }); }
+        } else {
+          taxi[n].name = v.trim();
+        }
+        return;
+      }
       if (!(key in TYPES)) { report.push({ ok: false, text: `„${k.trim()}“: neznámý název` }); return; }
       try {
         values[key] = PARSERS[TYPES[key]](v.trim());
@@ -145,6 +159,17 @@
         report.push({ ok: false, text: `${LABELS[key]}: ${e.message}` });
       }
     });
+    values.taxi = [];
+    for (const t of Object.values(taxi).sort((a, b) => a.n - b.n)) {
+      const name = t.name || `Taxi ${t.n}`;
+      if (t.lat == null) {
+        report.push({ ok: false, text: `taxi ${t.n} (${name}): chybí taxi-${t.n}-gps` });
+        continue;
+      }
+      values.taxi.push({ n: t.n, name, lat: t.lat, lon: t.lon });
+      report.push({ ok: true, text: `taxi ${t.n}: ${name} (${t.lat.toFixed(5)}, ${t.lon.toFixed(5)})` });
+    }
+    if (!values.taxi.length) report.push({ ok: null, text: "místa pro taxi: žádná (Uber a mapa vedou z/do doma)" });
     for (const key of Object.keys(DEFAULTS)) {
       if (seen.has(key)) continue;
       if (key === "doma" || key === "prace") report.push({ ok: null, text: `${LABELS[key]}: nenastaveno` });

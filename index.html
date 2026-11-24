@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2f2f2f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Odjezdy</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23e3000b'/%3E%3Ctext x='16' y='22' font-family='Arial' font-weight='700' font-size='16' fill='white' text-anchor='middle'%3E%E2%86%92%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Sans+Condensed:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">odjezdy</span>
+    </div>
+    <div class="clock" id="clock">--:--</div>
+    <button class="icon-btn" id="settings-btn" title="Nastavení" aria-label="Nastavení">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z"/></svg>
+    </button>
+  </header>
+
+  <section class="timebar">
+    <div class="seg" role="group" aria-label="Výběr tabule" id="switcher"></div>
+    <div class="actions" id="actions"></div>
+    <span class="status" id="status"></span>
+  </section>
+
+  <main id="boards"></main>
+
+  <footer class="foot">
+    <b>Vyrazit</b> = kdy vyjít z místa, kde právě jsem (podle polohy, jinak od domova / práce) ·
+    <b>Odjezd</b> = odjezd spoje · <b>V cíli</b> = příchod do kanceláře / domů ·
+    zvýrazněný řádek = nejdřívější příchod do cíle<br>
+    Data: <a href="https://golemio.cz" target="_blank" rel="noopener">Golemio</a> / PID
+  </footer>
+
+  <dialog id="settings">
+    <form method="dialog" class="dlg">
+      <h2>Nastavení</h2>
+      <p class="muted">Obě pole se ukládají jen v tomto prohlížeči (localStorage). Do kódu na GitHubu ani nikam
+        jinam se nic neposílá – klíč jde jen přímo do Golemio API.</p>
+
+      <label for="token-input">API klíč Golemio
+        <a href="https://api.golemio.cz/api-keys/" target="_blank" rel="noopener">(získat zdarma)</a></label>
+      <textarea id="token-input" rows="3" spellcheck="false" autocomplete="off" placeholder="eyJhbGciOi…"></textarea>
+
+      <label for="prefs-input">Osobní nastavení
+        <button type="button" class="linkbtn" id="prefs-help-btn">nápověda</button></label>
+      <div class="help" id="prefs-help" hidden>
+        Jedna položka na řádek (nebo oddělené středníkem), ve tvaru <code>název = hodnota</code>.
+        Na velikosti písmen a diakritice nezáleží; desetinná čárka i tečka (u souřadnic jen tečka).
+        <pre>prace = 50.0875000N, 14.4213000E
+doma = 50.08750000000000, 14.42130000000000
+chuze = 12            # min/km
+kolo = 4              # min/km
+koef = 1,3            # vzdušná čára → skutečná cesta
+doma-petriny = kolo   # kolo / chůze
+prace-invalidovna = chuze
+prace-trznice = kolo
+vstup-metro = 45s     # do metra i z metra
+vstup-prace = 60s
+kolo-navic = 30s      # za každý úsek na kole
+hlidane-linky = A,B,1,2,25</pre>
+        Chybějící položky dostanou výchozí hodnotu (kromě souřadnic).
+      </div>
+      <textarea id="prefs-input" rows="9" spellcheck="false" autocomplete="off"
+        placeholder="prace = 50.1234567N, 14.1234567E&#10;doma = 50.12345, 14.12345&#10;chuze = 12&#10;kolo = 4&#10;…"></textarea>
+      <ul class="prefs-report" id="prefs-report"></ul>
+
+      <div class="share" id="share-box" hidden>
+        <p class="warn-text">Odkaz obsahuje API klíč i souřadnice – otevři ho jen na svém telefonu a nikomu ho neposílej.</p>
+        <input type="text" id="share-link" readonly>
+      </div>
+
+      <div class="dlg-actions">
+        <button type="button" id="token-clear" class="btn ghost">Smazat vše</button>
+        <button type="button" id="share-btn" class="btn ghost">Odkaz do mobilu</button>
+        <span class="spacer"></span>
+        <button value="cancel" class="btn ghost">Zavřít</button>
+        <button type="button" id="token-save" class="btn primary">Uložit</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="config.js"></script>
+  <script src="settings.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

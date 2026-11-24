@@ -54,6 +54,8 @@ taxi-1 = Název místa      # místa pro Uber / trasu autem (taxi-1 … taxi-9)
 taxi-1-gps = 50.12345, 14.12345
 taxi-2 = Jiné místo
 taxi-2-gps = 50.12345, 14.12345
+taxi-prace-prijezd = 50.12345 14.12345   # cíl taxi u práce (jinak prace)
+taxi-prace-odjezd = 50.12345 14.12345    # nástup do taxi u práce (jinak prace)
 ```
 
 Úsek pěšky / na kole = vzdušná vzdálenost × `koef` × tempo (+ `kolo-navic`).

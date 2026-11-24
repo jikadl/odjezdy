@@ -174,9 +174,17 @@
   }
   // Tlačítka Uber / Trasa autem. Jsou-li v nastavení místa pro taxi (taxi-N), nabídnou
   // podmenu: do práce = z vybraného místa do práce, domů = z práce na vybrané místo.
+  // Bod u práce pro taxi: zvlášť příjezd (cíl cesty do práce) a odjezd (nástup cesty domů)
+  function taxiPlace(k, dir) {
+    if (k === "prace") {
+      const p = P[dir === "to" ? "taxi-prace-prijezd" : "taxi-prace-odjezd"];
+      if (p) return { name: PLACE_NAMES.prace, lat: p.lat, lon: p.lon };
+    }
+    return place(k);
+  }
   function rideOptions(r) {
-    const from = place(r.from);
-    const to = place(r.to);
+    const from = taxiPlace(r.from, "from");
+    const to = taxiPlace(r.to, "to");
     const taxi = P.taxi || [];
     if (taxi.length) {
       if (r.from === "doma" && to) return taxi.map((t) => [t, to]);

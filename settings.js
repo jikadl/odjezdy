@@ -17,6 +17,8 @@
     "vstup-prace": 60,          // s
     "kolo-navic": 30,           // s, za každý úsek na kole
     "hlidane-linky": null,      // null = všechny linky
+    "taxi-prace-prijezd": null, // kam má taxi dovézt u práce (jinak prace)
+    "taxi-prace-odjezd": null,  // kde taxi u práce vyzvedne (jinak prace)
   };
 
   const LABELS = {
@@ -32,6 +34,8 @@
     "vstup-prace": "vstup do práce",
     "kolo-navic": "kolo navíc",
     "hlidane-linky": "hlídané linky",
+    "taxi-prace-prijezd": "taxi – příjezd k práci",
+    "taxi-prace-odjezd": "taxi – odjezd od práce",
   };
 
   const ALIASES = {
@@ -51,6 +55,7 @@
     "doma-petriny": "mode", "prace-invalidovna": "mode", "prace-trznice": "mode",
     "vstup-metro": "duration", "vstup-prace": "duration", "kolo-navic": "duration",
     "hlidane-linky": "lines",
+    "taxi-prace-prijezd": "coord", "taxi-prace-odjezd": "coord",
   };
 
   const strip = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -173,6 +178,7 @@
     for (const key of Object.keys(DEFAULTS)) {
       if (seen.has(key)) continue;
       if (key === "doma" || key === "prace") report.push({ ok: null, text: `${LABELS[key]}: nenastaveno` });
+      else if (key.startsWith("taxi-prace")) report.push({ ok: null, text: `${LABELS[key]}: jako práce (výchozí)` });
       else if (key === "hlidane-linky") report.push({ ok: null, text: `${LABELS[key]}: všechny (výchozí)` });
       else report.push({ ok: null, text: `${LABELS[key]}: ${describe(key, DEFAULTS[key])} (výchozí)` });
     }
